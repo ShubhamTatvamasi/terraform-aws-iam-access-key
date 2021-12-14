@@ -2,10 +2,17 @@ provider "aws" {
   region = "us-west-1"
 }
 
-resource "aws_iam_policy" "route53_policy" {
-  name        = "route53_policy"
-  path        = "/"
-  description = "Cert-manager Route53 Policy"
+resource "aws_iam_user" "cert_manager_route53_iam_user" {
+  name = "cert_manager_route53_iam_user"
+}
+
+resource "aws_iam_access_key" "cert_manager_route53_access_key" {
+  user = aws_iam_user.cert_manager_route53_iam_user.name
+}
+
+resource "aws_iam_user_policy" "cert_manager_route53_user_policy" {
+  name = "cert_manager_route53_user_policy"
+  user = aws_iam_user.cert_manager_route53_iam_user.name
 
   policy = <<EOF
 {
@@ -34,52 +41,11 @@ resource "aws_iam_policy" "route53_policy" {
 EOF
 }
 
+output "access_key" {
+  value = aws_iam_access_key.cert_manager_route53_access_key.id
+}
 
-
-
-
-
-# resource "aws_iam_access_key" "route53" {
-#   user    = aws_iam_user.route53.name
-#   pgp_key = "keybase:some_person_that_exists"
-# }
-
-# resource "aws_iam_user" "route53" {
-#   name = "route53"
-#   path = "."
-# }
-
-# resource "aws_iam_user_policy" "route53_role" {
-#   name = "test"
-#   user = aws_iam_user.route53.name
-
-#   policy = <<EOF
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Effect": "Allow",
-#       "Action": "route53:GetChange",
-#       "Resource": "arn:aws:route53:::change/*"
-#     },
-#     {
-#       "Effect": "Allow",
-#       "Action": [
-#         "route53:ChangeResourceRecordSets",
-#         "route53:ListResourceRecordSets"
-#       ],
-#       "Resource": "arn:aws:route53:::hostedzone/*"
-#     },
-#     {
-#       "Effect": "Allow",
-#       "Action": "route53:ListHostedZonesByName",
-#       "Resource": "*"
-#     }
-#   ]
-# }
-# EOF
-# }
-
-# output "secret" {
-#   value = aws_iam_access_key.route53.encrypted_secret
-# }
+output "secret_key" {
+  value = aws_iam_access_key.cert_manager_route53_access_key.secret
+  sensitive = true
+}
