@@ -2,8 +2,12 @@ provider "aws" {
   region = "us-west-1"
 }
 
+resource "random_id" "cert_manager_route53_random_id" {
+  byte_length = 8
+}
+
 resource "aws_iam_user" "cert_manager_route53_iam_user" {
-  name = "cert_manager_route53_iam_user"
+  name = "cert_manager_route53_iam_user-${resource.random_id.cert_manager_route53_random_id.id}"
 }
 
 resource "aws_iam_access_key" "cert_manager_route53_access_key" {
@@ -11,7 +15,7 @@ resource "aws_iam_access_key" "cert_manager_route53_access_key" {
 }
 
 resource "aws_iam_user_policy" "cert_manager_route53_user_policy" {
-  name = "cert_manager_route53_user_policy"
+  name = "cert_manager_route53_user_policy-${resource.random_id.cert_manager_route53_random_id.id}"
   user = aws_iam_user.cert_manager_route53_iam_user.name
 
   policy = <<EOF
